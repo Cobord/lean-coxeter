@@ -10,8 +10,6 @@ public import Coxeter.SpecialFeatures
 Finite types `Bₙ` and `Cₙ` have the same Coxeter system. This file packages that shared Coxeter
 system as `typeBCGroup`.
 
-The classification proofs are intentionally left as `proof_wanted` stubs.
-
 For mathlib's current uniform matrix definition, the first nonempty rank satisfies `BC₁ = A₁`.
 -/
 

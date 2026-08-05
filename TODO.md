@@ -51,3 +51,37 @@ these into an actual `AlgEquiv`/`Bijective` statement. This looks mechanical: co
 surjectivity and linear-independence-hence-injectivity facts (plus a spanning/dimension argument,
 likely already available via the `T_span`/`basis` machinery used elsewhere in the file) into
 `HeckeAlgebraOne W ≃ₐ[ℤ] MonoidAlgebra ℤ W`. Worth just doing.
+
+## Dunkl operators
+
+Not started. Builds on `Coxeter/NilHecke.lean`'s Cartan-space data (`CartanSpace`,
+`SymCartanSpace`, `cartanBilin`, `cartanReflection`) plus `Coxeter/GeometricRepresentation.lean`'s
+`geomRep : W →* (V W ≃ₗ[ℝ] V W)` and `Coxeter/PermutationRepresentation.lean`'s `ReflectionSet`/
+`AbstractRootSet` (general reflections, not just simple ones). None of the pieces below look too
+difficult individually, but none currently exist:
+
+- **`root : ReflectionSet W → CartanSpace W`**, assigning an actual vector to a *general*
+  reflection (currently only `simpleRoot i` exists, for simple reflections). Natural definition via
+  `ReflectionSet.induction`'s conjugation case: `root ⟨s_i * t * s_i⁻¹, _⟩ := geomRepAux i (root t)`.
+  Well-definedness (independent of how the reflection is built up by conjugation) needs that a
+  genuine reflection's `-1`-eigenspace under `geomRep` is `1`-dimensional, so any two constructions
+  land on the same line — not yet established.
+- **A `W`-conjugation-invariant parameter function** `c : ReflectionSet W → ℝ` (constant on
+  conjugacy classes) for the Dunkl operator's coupling constants. Direct precedent already in the
+  codebase: `heckeV_eq_of_odd` forces Hecke parameters `v_i = v_i'` across odd-connected chains of
+  simple reflections — the same "constant across an equivalence built from conjugation/braid moves"
+  shape.
+- **The directional derivative `∂_y` on `SymCartanSpace W`** — needs checking what mathlib's
+  `SymmetricAlgebra` API offers for derivations; may need custom work.
+- **The reflection action on `SymCartanSpace` by pullback** — should be easy, functorial from
+  `cartanReflection`/`geomRep`'s linear equivalences dualizing to algebra automorphisms of the
+  symmetric algebra.
+- **The Dunkl operator itself**: `D_y f = ∂_y f + Σ_{t ∈ reflections} c(t) · ⟨root(t), y⟩ / root(t)
+  · (f − t·f)`, combining all of the above.
+- **Commutativity**: `D_y` and `D_y'` commute for all `y, y' ∈ CartanSpace W` (Dunkl's 1989
+  theorem) — the central payoff theorem, a genuinely intricate multi-step computation summing over
+  reflections, though not an independently deep result like `Matsumoto`.
+
+No new ring/algebra type is needed here (unlike the `NilHeckeAlgebra`/Cherednik-algebra-flavored
+constructions discussed earlier) — just an operator-valued map plus this one theorem, so the
+footprint is smaller than those.
