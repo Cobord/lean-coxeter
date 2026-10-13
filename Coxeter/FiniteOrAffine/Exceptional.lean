@@ -1,5 +1,6 @@
 module
 
+public import Coxeter.BilinearLatticeDynkins
 public import Coxeter.SpecialFeatures
 
 /-!
@@ -104,5 +105,38 @@ proof_wanted typeH3_isIrreducible : @IsIrreducible _ typeH3Group
 proof_wanted typeH4_isIrreducible : @IsIrreducible _ typeH4Group
 proof_wanted typeH3_isFiniteCoxeter : @IsFiniteCoxeter _ typeH3Group
 proof_wanted typeH4_isFiniteCoxeter : @IsFiniteCoxeter _ typeH4Group
+
+
+/-! ### Euler lattices of `E₆`, `E₇`, `E₈` -/
+
+/-- The Euler lattice of type `E₆` (see `Coxeter.BilinearLatticeDynkins`). -/
+noncomputable abbrev typeE6BilinearLattice : BilinearLattice.{0} :=
+  BilinearLattice.eulerLattice CoxeterMatrix.E₆
+
+proof_wanted typeE6_isSimplyLaced : BilinearLattice.IsSimplyLaced CoxeterMatrix.E₆
+
+/-- The Coxeter number of `E₆` is `12`. -/
+proof_wanted typeE6BilinearLattice_S_pow :
+    (typeE6BilinearLattice.S : Module.End ℤ typeE6BilinearLattice) ^ 12 = 1
+
+/-- The Euler lattice of type `E₇` (see `Coxeter.BilinearLatticeDynkins`). -/
+noncomputable abbrev typeE7BilinearLattice : BilinearLattice.{0} :=
+  BilinearLattice.eulerLattice CoxeterMatrix.E₇
+
+proof_wanted typeE7_isSimplyLaced : BilinearLattice.IsSimplyLaced CoxeterMatrix.E₇
+
+/-- The Coxeter number of `E₇` is `18`. -/
+proof_wanted typeE7BilinearLattice_S_pow :
+    (typeE7BilinearLattice.S : Module.End ℤ typeE7BilinearLattice) ^ 18 = 1
+
+/-- The Euler lattice of type `E₈` (see `Coxeter.BilinearLatticeDynkins`). -/
+noncomputable abbrev typeE8BilinearLattice : BilinearLattice.{0} :=
+  BilinearLattice.eulerLattice CoxeterMatrix.E₈
+
+proof_wanted typeE8_isSimplyLaced : BilinearLattice.IsSimplyLaced CoxeterMatrix.E₈
+
+/-- The Coxeter number of `E₈` is `30`. -/
+proof_wanted typeE8BilinearLattice_S_pow :
+    (typeE8BilinearLattice.S : Module.End ℤ typeE8BilinearLattice) ^ 30 = 1
 
 end Coxeter

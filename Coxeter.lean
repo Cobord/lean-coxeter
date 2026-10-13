@@ -1,6 +1,8 @@
 module
 
 public import Coxeter.Basic
+public import Coxeter.BilinearLattice
+public import Coxeter.BilinearLatticeDynkins
 public import Coxeter.BraidGroup
 public import Coxeter.Bruhat
 public import Coxeter.CartanMatrix

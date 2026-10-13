@@ -1,6 +1,7 @@
 module
 
 public import Coxeter.FiniteOrAffine.TridiagonalForm
+public import Coxeter.BilinearLatticeDynkins
 public import Coxeter.SpecialFeatures
 public import Mathlib.Combinatorics.SimpleGraph.Hasse
 
@@ -229,5 +230,18 @@ theorem typeA_isPolyFiniteWeyl (m : ℕ) : @IsPolyFiniteWeyl _ (typeAGroup (m + 
 /-- Type A on `m + 1` generators is an *irreducible* finite Weyl group. -/
 theorem typeA_isIrreducibleFiniteWeyl (m : ℕ) : @IsIrreducibleFiniteWeyl _ (typeAGroup (m + 1)) :=
   ⟨typeA_isPolyFiniteWeyl m, typeA_isIrreducible m⟩
+
+
+/-! ### Euler lattice -/
+
+/-- The Euler lattice of type `Aₙ` (see `Coxeter.BilinearLatticeDynkins`). -/
+noncomputable abbrev typeABilinearLattice (n : ℕ) : BilinearLattice.{0} :=
+  BilinearLattice.eulerLattice (CoxeterMatrix.A n)
+
+proof_wanted typeA_isSimplyLaced (n : ℕ) : BilinearLattice.IsSimplyLaced (CoxeterMatrix.A n)
+
+/-- The Coxeter number of `Aₙ` is `n + 1`. -/
+proof_wanted typeABilinearLattice_S_pow (n : ℕ) :
+    ((typeABilinearLattice n).S : Module.End ℤ (typeABilinearLattice n)) ^ (n + 1) = 1
 
 end Coxeter

@@ -1,6 +1,7 @@
 module
 
 public import Coxeter.FiniteOrAffine.TypeA
+public import Coxeter.BilinearLatticeDynkins
 public import Coxeter.SpecialFeatures
 
 /-!
@@ -104,5 +105,18 @@ theorem typeD_three_identifies_typeA_three :
   rw [← typeDMatrix_three_eq_A_three]
 
 end Accidentals
+
+
+/-! ### Euler lattice -/
+
+/-- The Euler lattice of type `D_(n+4)` (see `Coxeter.BilinearLatticeDynkins`). -/
+noncomputable abbrev typeDBilinearLattice (n : ℕ) : BilinearLattice.{0} :=
+  BilinearLattice.eulerLattice (typeDMatrix (n + 4))
+
+proof_wanted typeD_isSimplyLaced (n : ℕ) : BilinearLattice.IsSimplyLaced (typeDMatrix (n + 4))
+
+/-- The Coxeter number of `D_(n+4)` is `2 (n + 4) - 2 = 2 n + 6`. -/
+proof_wanted typeDBilinearLattice_S_pow (n : ℕ) :
+    ((typeDBilinearLattice n).S : Module.End ℤ (typeDBilinearLattice n)) ^ (2 * n + 6) = 1
 
 end Coxeter

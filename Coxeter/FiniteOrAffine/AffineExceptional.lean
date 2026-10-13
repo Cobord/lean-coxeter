@@ -1,5 +1,6 @@
 module
 
+public import Coxeter.BilinearLatticeDynkins
 public import Coxeter.SpecialFeatures
 
 /-!
@@ -65,5 +66,47 @@ proof_wanted affineTypeF4_isIrreducibleAffineWeyl :
     @IsIrreducibleAffineWeyl _ affineTypeF4Group
 proof_wanted affineTypeG2_isIrreducibleAffineWeyl :
     @IsIrreducibleAffineWeyl _ affineTypeG2Group
+
+
+/-! ### Euler lattices of `Ẽ₆`, `Ẽ₇`, `Ẽ₈` -/
+
+/-- The Euler lattice of type `Ẽ₆` (see `Coxeter.BilinearLatticeDynkins`). -/
+noncomputable abbrev affineTypeE6BilinearLattice : BilinearLattice.{0} :=
+  BilinearLattice.eulerLattice affineTypeE6Matrix
+
+proof_wanted affineTypeE6_isSimplyLaced : BilinearLattice.IsSimplyLaced affineTypeE6Matrix
+
+/-- `S` is quasi-unipotent of index exactly `2`. -/
+proof_wanted affineTypeE6BilinearLattice_isQuasiUnipotent :
+    Module.End.IsQuasiUnipotentOfIndex
+      (affineTypeE6BilinearLattice.S : Module.End ℤ affineTypeE6BilinearLattice) 2 ∧
+    ¬ Module.End.IsQuasiUnipotentOfIndex
+      (affineTypeE6BilinearLattice.S : Module.End ℤ affineTypeE6BilinearLattice) 1
+
+/-- The Euler lattice of type `Ẽ₇` (see `Coxeter.BilinearLatticeDynkins`). -/
+noncomputable abbrev affineTypeE7BilinearLattice : BilinearLattice.{0} :=
+  BilinearLattice.eulerLattice affineTypeE7Matrix
+
+proof_wanted affineTypeE7_isSimplyLaced : BilinearLattice.IsSimplyLaced affineTypeE7Matrix
+
+/-- `S` is quasi-unipotent of index exactly `2`. -/
+proof_wanted affineTypeE7BilinearLattice_isQuasiUnipotent :
+    Module.End.IsQuasiUnipotentOfIndex
+      (affineTypeE7BilinearLattice.S : Module.End ℤ affineTypeE7BilinearLattice) 2 ∧
+    ¬ Module.End.IsQuasiUnipotentOfIndex
+      (affineTypeE7BilinearLattice.S : Module.End ℤ affineTypeE7BilinearLattice) 1
+
+/-- The Euler lattice of type `Ẽ₈` (see `Coxeter.BilinearLatticeDynkins`). -/
+noncomputable abbrev affineTypeE8BilinearLattice : BilinearLattice.{0} :=
+  BilinearLattice.eulerLattice affineTypeE8Matrix
+
+proof_wanted affineTypeE8_isSimplyLaced : BilinearLattice.IsSimplyLaced affineTypeE8Matrix
+
+/-- `S` is quasi-unipotent of index exactly `2`. -/
+proof_wanted affineTypeE8BilinearLattice_isQuasiUnipotent :
+    Module.End.IsQuasiUnipotentOfIndex
+      (affineTypeE8BilinearLattice.S : Module.End ℤ affineTypeE8BilinearLattice) 2 ∧
+    ¬ Module.End.IsQuasiUnipotentOfIndex
+      (affineTypeE8BilinearLattice.S : Module.End ℤ affineTypeE8BilinearLattice) 1
 
 end Coxeter
