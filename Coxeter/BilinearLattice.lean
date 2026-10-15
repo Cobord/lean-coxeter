@@ -14,20 +14,32 @@ public import Mathlib.LinearAlgebra.SesquilinearForm.Basic
 /-!
 # Bilinear lattices
 
-A *bilinear lattice* is `(G, χ, S)`: a finitely generated abelian group `G`, a nondegenerate
-(`ker χ = 0`, not necessarily unimodular) biadditive `χ : G × G → ℤ`, and `S ∈ Aut G` with
-`χ x y = -χ y (S x)`. Morphisms are group homomorphisms `f` with `χ' (f x) (f y) = χ x y` and
-`f ∘ S = S' ∘ f`. Freeness of `G` and uniqueness of `S` follow from nondegeneracy.
+A *bilinear lattice* is `(G, χ, S)`:
+- a finitely generated abelian group `G`
+- a nondegenerate biadditive `χ : G × G → ℤ`
+  (`ker χ = 0`, not necessarily unimodular)
+- `S ∈ Aut G` with
+  `χ x y = -χ y (S x)`
+
+Morphisms are group homomorphisms `f` with
+- `χ' (f x) (f y) = χ x y`
+- `f ∘ S = S' ∘ f`
+
+Freeness of `G` and uniqueness of `S` follow from nondegeneracy.
 
 A *bilinear lattice with a distinguished submonoid, subject to the power condition*
 (`BilinearLattice.WithMonoidQuasiUnipotent`) additionally carries a submonoid `P ⊆ G`, and `S`
-satisfies the power condition `∃ m ≥ 1, (S ^ m - 1) ^ 2 = 0`. Neither `m` nor a basis is chosen.
-Morphisms additionally satisfy `f(P) ⊆ P'`. No connectedness, positivity of `χ`, pointedness of
-`P`, or preservation of `P` by `S` is imposed.
+satisfies the power condition
+`∃ m ≥ 1, (S ^ m - 1) ^ 2 = 0`.
+Neither `m` nor a basis is chosen.
+Morphisms additionally must satisfy `f(P) ⊆ P'`.
 
-The power condition says that `S` is *quasi-unipotent of index at most `2`*: some positive power
-`S ^ m` is unipotent, and `S ^ m - 1` is square-zero (over `ℚ`, all Jordan blocks of `S ^ m` have
-size at most `2`). This is recorded by `Module.End.IsQuasiUnipotentOfIndex S 2`.
+The power condition says that `S` is
+*quasi-unipotent of index at most `2`*:
+some positive power
+`S ^ m` is unipotent,
+and `S ^ m - 1` is square-zero.
+This is recorded by `Module.End.IsQuasiUnipotentOfIndex S 2`.
 
 ## Main definitions
 
@@ -57,19 +69,36 @@ namespace Module.End
 
 variable {R M : Type*} [Ring R] [AddCommGroup M] [Module R M]
 
-/-- `f` is *quasi-unipotent of index at most `k`* if `(f ^ m - 1) ^ k = 0` for some `m ≥ 1`,
-i.e. some positive power of `f` is unipotent with `f ^ m - 1` nilpotent of order at most `k`. -/
+/-- `f` is *quasi-unipotent of index at most `k`*
+if `(f ^ m - 1) ^ k = 0` for some `m ≥ 1` -/
 def IsQuasiUnipotentOfIndex (f : Module.End R M) (k : ℕ) : Prop :=
   ∃ m : ℕ, 0 < m ∧ (f ^ m - 1) ^ k = 0
 
 /-- If `f ^ m - 1` is square-zero then so is `f ^ (m * k) - 1`. -/
-theorem pow_mul_sub_one_sq_eq_zero {f : Module.End R M} {m : ℕ} (hf : (f ^ m - 1) ^ 2 = 0)
+lemma pow_mul_sub_one_sq_eq_zero {f : Module.End R M} {m : ℕ} (hf : (f ^ m - 1) ^ 2 = 0)
     (k : ℕ) : (f ^ (m * k) - 1) ^ 2 = 0 := by
   set g := ∑ i ∈ Finset.range k, (f ^ m) ^ i
   calc (f ^ (m * k) - 1) ^ 2 = (g * (f ^ m - 1)) * ((f ^ m - 1) * g) := by
         rw [geom_sum_mul, mul_geom_sum, pow_mul, sq]
     _ = g * (f ^ m - 1) ^ 2 * g := by rw [sq]; simp only [mul_assoc]
     _ = 0 := by rw [hf, mul_zero, zero_mul]
+
+/-- An endomorphism of finite order is quasi-unipotent of every positive index. -/
+theorem isQuasiUnipotentOfIndex_of_pow_eq_one {f : Module.End R M} {m k : ℕ} (hm : 0 < m)
+    (hf : f ^ m = 1) (hk : 0 < k) : IsQuasiUnipotentOfIndex f k :=
+  ⟨m, hm, by rw [hf, sub_self, zero_pow hk.ne']⟩
+
+/-- Quasi-unipotence of index at most `2`
+is preserved by squaring. -/
+theorem IsQuasiUnipotentOfIndex.squaring
+    {f : Module.End R M}
+    (hf : IsQuasiUnipotentOfIndex f 2)
+    : IsQuasiUnipotentOfIndex (f^2) 2 := by
+  obtain ⟨m, hm, hf⟩ := hf
+  refine ⟨m, hm, ?_⟩
+  have hf := pow_mul_sub_one_sq_eq_zero hf 2
+  rw [mul_comm, pow_mul] at hf
+  exact hf
 
 /-- Quasi-unipotence of index at most `2` is preserved by direct sums. -/
 theorem IsQuasiUnipotentOfIndex.prodMap {M₂ : Type*} [AddCommGroup M₂] [Module R M₂]
@@ -93,8 +122,11 @@ open Polynomial
 
 variable {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M]
 
-/-- To show `f` is quasi-unipotent of index at most `k`, it suffices to find a polynomial `p`
-annihilating `f` with `p ∣ (X ^ m - 1) ^ k` for some `m ≥ 1`. -/
+/-- To show `f` is quasi-unipotent of index at most `k`,
+it suffices to find a polynomial
+`p` which
+- annihilates `f`
+- `p ∣ (X ^ m - 1) ^ k` for some `m ≥ 1`. -/
 theorem isQuasiUnipotentOfIndex_of_aeval {f : Module.End R M} {k m : ℕ} (hm : 0 < m)
     {p : R[X]} (hp : aeval f p = 0) (hdvd : p ∣ (X ^ m - 1) ^ k) :
     IsQuasiUnipotentOfIndex f k := by
@@ -102,8 +134,11 @@ theorem isQuasiUnipotentOfIndex_of_aeval {f : Module.End R M} {k m : ℕ} (hm : 
   refine ⟨m, hm, ?_⟩
   simpa [hp] using congrArg (aeval f) hq
 
-/-- Cayley–Hamilton version: on a finite free module, `f` is quasi-unipotent of index at most `k`
-if its characteristic polynomial divides `(X ^ m - 1) ^ k` for some `m ≥ 1`. -/
+/-- Cayley–Hamilton version:
+on a finite free module,
+`f` is quasi-unipotent of index at most `k`
+if its characteristic polynomial divides
+`(X ^ m - 1) ^ k` for some `m ≥ 1`. -/
 theorem isQuasiUnipotentOfIndex_of_charpoly_dvd [Module.Free R M] [Module.Finite R M]
     {f : Module.End R M} {k m : ℕ} (hm : 0 < m) (hdvd : f.charpoly ∣ (X ^ m - 1) ^ k) :
     IsQuasiUnipotentOfIndex f k :=
@@ -117,11 +152,14 @@ namespace Coxeter
 
 open CategoryTheory
 
-/-- A bilinear lattice: a finitely generated abelian group `G` with a nondegenerate (not
-necessarily unimodular) `ℤ`-bilinear form `χ` and an automorphism `S` with `χ x y = -χ y (S x)`.
+/-- A bilinear lattice:
+a finitely generated abelian group `G` with
+- a nondegenerate (not necessarily unimodular) `ℤ`-bilinear form `χ`
+- an automorphism `S`
+satisfying `χ x y = -χ y (S x)`.
 
-Freeness of `G` is not a field: nondegeneracy forces `G` to be torsion-free, hence free
-(see `BilinearLattice.instIsTorsionFree` and `Module.free_of_finite_type_torsion_free'`). -/
+Freeness of `G` is not a field:
+nondegeneracy forces `G` to be torsion-free -/
 structure BilinearLattice where
   /-- The underlying abelian group `G`. -/
   carrier : Type u
@@ -140,7 +178,8 @@ attribute [instance] addCommGroup finite
 
 instance : CoeSort BilinearLattice.{u} (Type u) := ⟨carrier⟩
 
-/-- Nondegeneracy of `χ` makes the underlying group torsion-free. -/
+/-- Nondegeneracy of `χ`
+makes the underlying group torsion-free. -/
 instance instIsTorsionFree (A : BilinearLattice.{u}) : Module.IsTorsionFree ℤ A where
   isSMulRegular r hr a b hab := by
     rw [← sub_eq_zero]
@@ -151,12 +190,12 @@ instance instIsTorsionFree (A : BilinearLattice.{u}) : Module.IsTorsionFree ℤ 
         LinearMap.zero_apply]
     exact (mul_eq_zero.1 h).resolve_left (isRegular_iff_ne_zero.1 hr)
 
-/-- The underlying group is free, by the structure theorem for finitely generated torsion-free
-abelian groups. -/
+/-- The underlying group is free, following from above -/
 instance (A : BilinearLattice.{u}) : Module.Free ℤ A :=
   Module.free_of_finite_type_torsion_free'
 
-/-- `S` is determined by `χ`: any `T` with `χ x y = -χ y (T x)` equals `S`. -/
+/-- `S` is determined by `χ`
+any `T` with `χ x y = -χ y (T x)` equals `S`. -/
 theorem eq_S (A : BilinearLattice.{u}) {T : A →ₗ[ℤ] A} (hT : ∀ x y, A.χ x y = -A.χ y (T x)) :
     T = A.S := by
   ext x
@@ -164,14 +203,14 @@ theorem eq_S (A : BilinearLattice.{u}) {T : A →ₗ[ℤ] A} (hT : ∀ x y, A.χ
   rw [map_sub, sub_eq_zero, ← neg_inj, ← hT]
   exact A.χ_S x y
 
-/-- A morphism of bilinear lattices: a group homomorphism `f` with `χ' (f x) (f y) = χ x y` and
-`f ∘ S = S' ∘ f`. -/
+/-- A morphism of bilinear lattices:
+a group homomorphism `f` with
+`χ' (f x) (f y) = χ x y`. -/
 @[ext]
 structure Hom (A B : BilinearLattice.{u}) where
   /-- The underlying group homomorphism. -/
   toLinearMap : A →ₗ[ℤ] B
   map_χ : ∀ x y, B.χ (toLinearMap x) (toLinearMap y) = A.χ x y
-  map_S : ∀ x, toLinearMap (A.S x) = B.S (toLinearMap x)
 
 namespace Hom
 
@@ -181,15 +220,14 @@ variable {A B C : BilinearLattice.{u}}
 def id (A : BilinearLattice.{u}) : Hom A A where
   toLinearMap := LinearMap.id
   map_χ _ _ := rfl
-  map_S _ := rfl
 
 /-- Composition of morphisms. -/
 def comp (f : Hom A B) (g : Hom B C) : Hom A C where
   toLinearMap := g.toLinearMap ∘ₗ f.toLinearMap
   map_χ x y := by simp [g.map_χ, f.map_χ]
-  map_S x := by simp [f.map_S, g.map_S]
 
-/-- Nondegeneracy of `χ` makes every morphism injective. -/
+/-- Nondegeneracy of `χ`
+makes every morphism injective. -/
 theorem injective (f : Hom A B) : Function.Injective f.toLinearMap := by
   rw [← LinearMap.ker_eq_bot, LinearMap.ker_eq_bot']
   intro x hx
@@ -218,7 +256,8 @@ theorem comp_toLinearMap {A B C : BilinearLattice.{u}} (f : A ⟶ B) (g : B ⟶ 
     (f ≫ g).toLinearMap = g.toLinearMap ∘ₗ f.toLinearMap :=
   rfl
 
-/-- The forgetful functor to `ℤ`-modules, forgetting `χ` and `S`. -/
+/-- The forgetful functor to `ℤ`-modules,
+forgetting `χ` and `S`. -/
 @[simps]
 def forget : BilinearLattice.{u} ⥤ ModuleCat.{u} ℤ where
   obj A := ModuleCat.of ℤ A
@@ -227,27 +266,30 @@ def forget : BilinearLattice.{u} ⥤ ModuleCat.{u} ℤ where
 instance : forget.Faithful where
   map_injective h := hom_ext (congrArg ModuleCat.Hom.hom h)
 
-/-- Nondegeneracy of `χ` makes every morphism a monomorphism. -/
+/-- Nondegeneracy of `χ` makes
+every morphism a monomorphism. -/
 instance {A B : BilinearLattice.{u}} (f : A ⟶ B) : Mono f where
   right_cancellation g h w := by
     ext x
     exact Hom.injective f (congrArg (fun k ↦ k.toLinearMap x) w)
 
-/-- Build an isomorphism from a linear equivalence compatible with `χ` and `S`. -/
+/-- Build an isomorphism from
+a linear equivalence compatible with `χ` and `S`. -/
 @[simps]
 def isoMk {A B : BilinearLattice.{u}} (e : A ≃ₗ[ℤ] B) (hχ : ∀ x y, B.χ (e x) (e y) = A.χ x y)
-    (hS : ∀ x, e (A.S x) = B.S (e x)) : A ≅ B where
-  hom := ⟨e, hχ, hS⟩
+    : A ≅ B where
+  hom := ⟨e, hχ⟩
   inv :=
     { toLinearMap := e.symm
       map_χ x y := by rw [← hχ]; simp
-      map_S y := e.injective (by simp [hS]) }
+    }
   hom_inv_id := hom_ext (LinearMap.ext e.symm_apply_apply)
   inv_hom_id := hom_ext (LinearMap.ext e.apply_symm_apply)
 
 /-! ### Orthogonal direct sum -/
 
-/-- The orthogonal direct sum `(G ⊕ G', χ ⊥ χ', S ⊕ S')`. -/
+/-- The orthogonal direct sum
+`(G ⊕ G', χ ⊥ χ', S ⊕ S')`. -/
 def prod (A B : BilinearLattice.{u}) : BilinearLattice.{u} where
   carrier := A × B
   addCommGroup := inferInstanceAs (AddCommGroup (A × B))
@@ -283,7 +325,6 @@ def prodMap {A A' B B' : BilinearLattice.{u}} (f : A ⟶ A') (g : B ⟶ B') :
     change A'.χ (f.toLinearMap x.1) (f.toLinearMap y.1) +
       B'.χ (g.toLinearMap x.2) (g.toLinearMap y.2) = A.χ x.1 y.1 + B.χ x.2 y.2
     rw [f.map_χ, g.map_χ]
-  map_S x := Prod.ext (f.map_S x.1) (g.map_S x.2)
 
 instance : MonoidalCategoryStruct BilinearLattice.{u} where
   tensorObj := prod
@@ -292,11 +333,11 @@ instance : MonoidalCategoryStruct BilinearLattice.{u} where
   tensorHom := prodMap
   tensorUnit := zero
   associator A B C := isoMk (LinearEquiv.prodAssoc ℤ A B C)
-    (fun _ _ ↦ (add_assoc _ _ _).symm) (fun _ ↦ rfl)
+    (fun _ _ ↦ (add_assoc _ _ _).symm)
   leftUnitor _ := isoMk (LinearEquiv.uniqueProd (M₂ := PUnit))
-    (fun _ _ ↦ (zero_add _).symm) (fun _ ↦ rfl)
+    (fun _ _ ↦ (zero_add _).symm)
   rightUnitor _ := isoMk (LinearEquiv.prodUnique (M₂ := PUnit))
-    (fun _ _ ↦ (add_zero _).symm) (fun _ ↦ rfl)
+    (fun _ _ ↦ (add_zero _).symm)
 
 instance : MonoidalCategory BilinearLattice.{u} :=
   .ofTensorHom
@@ -312,7 +353,7 @@ instance : MonoidalCategory BilinearLattice.{u} :=
 
 /-- The braiding swaps the two summands. -/
 instance : SymmetricCategory BilinearLattice.{u} where
-  braiding A B := isoMk (LinearEquiv.prodComm ℤ A B) (fun _ _ ↦ add_comm _ _) (fun _ ↦ rfl)
+  braiding A B := isoMk (LinearEquiv.prodComm ℤ A B) (fun _ _ ↦ add_comm _ _)
   braiding_naturality_right _ _ _ _ := rfl
   braiding_naturality_left _ _ := rfl
   hexagon_forward _ _ _ := rfl
@@ -321,24 +362,26 @@ instance : SymmetricCategory BilinearLattice.{u} where
 
 /-! ### Bilinear lattices with a distinguished submonoid -/
 
-/-- A bilinear lattice with a distinguished submonoid `P`, subject to the power condition:
+/-- A bilinear lattice with
+a distinguished submonoid `P`,
+subject to the power condition:
 `S` is quasi-unipotent of index at most `2`. -/
-structure WithMonoidQuasiUnipotent extends BilinearLattice.{u} where
+structure BilinearLatticeWithMonoidQuasiUnipotent extends BilinearLattice.{u} where
   /-- The distinguished submonoid `P`. -/
   P : AddSubmonoid carrier
   isQuasiUnipotent : Module.End.IsQuasiUnipotentOfIndex (S : Module.End ℤ carrier) 2
 
 namespace WithMonoidQuasiUnipotent
 
-instance : CoeSort WithMonoidQuasiUnipotent.{u} (Type u) := ⟨fun A ↦ A.carrier⟩
+instance : CoeSort BilinearLatticeWithMonoidQuasiUnipotent (Type u) := ⟨fun A ↦ A.carrier⟩
 
-/-- A morphism of bilinear lattices with distinguished submonoids: a morphism of bilinear
-lattices `f` with `f(P) ⊆ P'`. -/
-structure Hom (A B : WithMonoidQuasiUnipotent.{u}) extends
+/-- A morphism of bilinear lattices with distinguished submonoids:
+a morphism of bilinear lattices `f` with `f(P) ⊆ P'`. -/
+structure Hom (A B : BilinearLatticeWithMonoidQuasiUnipotent) extends
     BilinearLattice.Hom A.toBilinearLattice B.toBilinearLattice where
   map_P : ∀ x ∈ A.P, toLinearMap x ∈ B.P
 
-theorem Hom.ext {A B : WithMonoidQuasiUnipotent.{u}} {f g : Hom A B}
+theorem Hom.ext {A B : BilinearLatticeWithMonoidQuasiUnipotent} {f g : Hom A B}
     (h : f.toLinearMap = g.toLinearMap) :
     f = g := by
   obtain ⟨f, _⟩ := f
@@ -346,84 +389,93 @@ theorem Hom.ext {A B : WithMonoidQuasiUnipotent.{u}} {f g : Hom A B}
   congr
   exact BilinearLattice.Hom.ext h
 
-instance : Category WithMonoidQuasiUnipotent.{u} where
+instance : Category BilinearLatticeWithMonoidQuasiUnipotent where
   Hom := Hom
   id A := ⟨BilinearLattice.Hom.id _, fun _ hx ↦ hx⟩
   comp f g := ⟨f.toHom.comp g.toHom, fun x hx ↦ g.map_P _ (f.map_P x hx)⟩
 
 @[ext]
-theorem hom_ext {A B : WithMonoidQuasiUnipotent.{u}} {f g : A ⟶ B}
+theorem hom_ext {A B : BilinearLatticeWithMonoidQuasiUnipotent} {f g : A ⟶ B}
     (h : f.toLinearMap = g.toLinearMap) :
     f = g :=
   Hom.ext h
 
 @[simp]
-theorem id_toLinearMap (A : WithMonoidQuasiUnipotent.{u}) :
+theorem id_toLinearMap (A : BilinearLatticeWithMonoidQuasiUnipotent) :
     (𝟙 A : A ⟶ A).toLinearMap = LinearMap.id :=
   rfl
 
 @[simp]
-theorem comp_toLinearMap {A B C : WithMonoidQuasiUnipotent.{u}} (f : A ⟶ B) (g : B ⟶ C) :
+theorem comp_toLinearMap {A B C : BilinearLatticeWithMonoidQuasiUnipotent} (f : A ⟶ B) (g : B ⟶ C) :
     (f ≫ g).toLinearMap = g.toLinearMap ∘ₗ f.toLinearMap :=
   rfl
 
-/-- The forgetful functor to bilinear lattices, forgetting `P` and the power condition. -/
+/-- The forgetful functor to bilinear lattices
+forgetting `P` and the power condition. -/
 @[simps]
-def forget : WithMonoidQuasiUnipotent.{u} ⥤ BilinearLattice.{u} where
+def forget : BilinearLatticeWithMonoidQuasiUnipotent ⥤ BilinearLattice.{u} where
   obj A := A.toBilinearLattice
   map f := f.toHom
 
 instance : forget.Faithful where
   map_injective h := hom_ext (congrArg BilinearLattice.Hom.toLinearMap h)
 
-/-- The forgetful functor to `ℤ`-modules, as the composite through `BilinearLattice`. -/
-abbrev forgetModuleCat : WithMonoidQuasiUnipotent.{u} ⥤ ModuleCat.{u} ℤ :=
+/-- The forgetful functor to `ℤ`-modules
+as the composite through `BilinearLattice`. -/
+abbrev forgetModuleCat : BilinearLatticeWithMonoidQuasiUnipotent ⥤ ModuleCat.{u} ℤ :=
   forget ⋙ BilinearLattice.forget
 
-/-- Nondegeneracy of `χ` makes every morphism a monomorphism. -/
-instance {A B : WithMonoidQuasiUnipotent.{u}} (f : A ⟶ B) : Mono f where
+/-- Nondegeneracy of `χ`
+makes every morphism a monomorphism. -/
+instance {A B : BilinearLatticeWithMonoidQuasiUnipotent} (f : A ⟶ B) : Mono f where
   right_cancellation _ _ w := hom_ext <| LinearMap.ext fun x ↦
     BilinearLattice.Hom.injective f.toHom (congrArg (fun k ↦ k.toLinearMap x) w)
 
-/-- Build an isomorphism from a linear equivalence compatible with `P`, `χ` and `S`. -/
-def isoMk {A B : WithMonoidQuasiUnipotent.{u}} (e : A ≃ₗ[ℤ] B) (hP : ∀ x, e x ∈ B.P ↔ x ∈ A.P)
-    (hχ : ∀ x y, B.χ (e x) (e y) = A.χ x y) (hS : ∀ x, e (A.S x) = B.S (e x)) : A ≅ B where
-  hom := ⟨(BilinearLattice.isoMk e hχ hS).hom, fun x hx ↦ (hP x).2 hx⟩
-  inv := ⟨(BilinearLattice.isoMk e hχ hS).inv, fun y hy ↦ (hP _).1 (by simpa using hy)⟩
+/-- Build an isomorphism from
+a linear equivalence compatible with `P`, `χ` and `S`. -/
+def isoMk {A B : BilinearLatticeWithMonoidQuasiUnipotent}
+  (e : A ≃ₗ[ℤ] B)
+  (hP : ∀ x, e x ∈ B.P ↔ x ∈ A.P)
+  (hχ : ∀ x y, B.χ (e x) (e y) = A.χ x y)
+  : A ≅ B where
+  hom := ⟨(BilinearLattice.isoMk e hχ).hom, fun x hx ↦ (hP x).2 hx⟩
+  inv := ⟨(BilinearLattice.isoMk e hχ).inv, fun y hy ↦ (hP _).1 (by simpa using hy)⟩
   hom_inv_id := hom_ext (LinearMap.ext e.symm_apply_apply)
   inv_hom_id := hom_ext (LinearMap.ext e.apply_symm_apply)
 
-/-- The orthogonal direct sum `(G ⊕ G', P ⊕ P', χ ⊥ χ', S ⊕ S')`. -/
-def prod (A B : WithMonoidQuasiUnipotent.{u}) : WithMonoidQuasiUnipotent.{u} where
+/-- The orthogonal direct sum
+`(G ⊕ G', P ⊕ P', χ ⊥ χ', S ⊕ S')`. -/
+def prod (A B : BilinearLatticeWithMonoidQuasiUnipotent) :
+  BilinearLatticeWithMonoidQuasiUnipotent where
   toBilinearLattice := A.toBilinearLattice.prod B.toBilinearLattice
   P := A.P.prod B.P
   isQuasiUnipotent := A.isQuasiUnipotent.prodMap B.isQuasiUnipotent
 
 /-- The zero bilinear lattice, the unit for `prod`. -/
-def zero : WithMonoidQuasiUnipotent.{u} where
+def zero : BilinearLatticeWithMonoidQuasiUnipotent where
   toBilinearLattice := BilinearLattice.zero
   P := ⊤
   isQuasiUnipotent := ⟨1, one_pos, LinearMap.ext fun _ ↦ Subsingleton.elim (α := PUnit) _ _⟩
 
 /-- The direct sum of two morphisms. -/
-def prodMap {A A' B B' : WithMonoidQuasiUnipotent.{u}} (f : A ⟶ A') (g : B ⟶ B') :
+def prodMap {A A' B B' : BilinearLatticeWithMonoidQuasiUnipotent} (f : A ⟶ A') (g : B ⟶ B') :
     prod A B ⟶ prod A' B' :=
   ⟨BilinearLattice.prodMap f.toHom g.toHom, fun _ hx ↦ ⟨f.map_P _ hx.1, g.map_P _ hx.2⟩⟩
 
-instance : MonoidalCategoryStruct WithMonoidQuasiUnipotent.{u} where
+instance : MonoidalCategoryStruct BilinearLatticeWithMonoidQuasiUnipotent where
   tensorObj := prod
   whiskerLeft A _ _ g := prodMap (𝟙 A) g
   whiskerRight f B := prodMap f (𝟙 B)
   tensorHom := prodMap
   tensorUnit := zero
   associator A B C := isoMk (LinearEquiv.prodAssoc ℤ A B C)
-    (fun _ ↦ and_assoc.symm) (fun _ _ ↦ (add_assoc _ _ _).symm) (fun _ ↦ rfl)
+    (fun _ ↦ and_assoc.symm) (fun _ _ ↦ (add_assoc _ _ _).symm)
   leftUnitor _ := isoMk (LinearEquiv.uniqueProd (M₂ := PUnit))
-    (fun _ ↦ Iff.of_eq (true_and _).symm) (fun _ _ ↦ (zero_add _).symm) (fun _ ↦ rfl)
+    (fun _ ↦ Iff.of_eq (true_and _).symm) (fun _ _ ↦ (zero_add _).symm)
   rightUnitor _ := isoMk (LinearEquiv.prodUnique (M₂ := PUnit))
-    (fun _ ↦ Iff.of_eq (and_true _).symm) (fun _ _ ↦ (add_zero _).symm) (fun _ ↦ rfl)
+    (fun _ ↦ Iff.of_eq (and_true _).symm) (fun _ _ ↦ (add_zero _).symm)
 
-instance : MonoidalCategory WithMonoidQuasiUnipotent.{u} :=
+instance : MonoidalCategory BilinearLatticeWithMonoidQuasiUnipotent :=
   .ofTensorHom
     (id_tensorHom_id := fun _ _ ↦ rfl)
     (id_tensorHom := by intros; rfl)
@@ -436,9 +488,9 @@ instance : MonoidalCategory WithMonoidQuasiUnipotent.{u} :=
     (triangle := fun _ _ ↦ rfl)
 
 /-- The braiding swaps the two summands. -/
-instance : SymmetricCategory WithMonoidQuasiUnipotent.{u} where
+instance : SymmetricCategory BilinearLatticeWithMonoidQuasiUnipotent where
   braiding A B := isoMk (LinearEquiv.prodComm ℤ A B)
-    (fun _ ↦ and_comm) (fun _ _ ↦ add_comm _ _) (fun _ ↦ rfl)
+    (fun _ ↦ and_comm) (fun _ _ ↦ add_comm _ _)
   braiding_naturality_right _ _ _ _ := rfl
   braiding_naturality_left _ _ := rfl
   hexagon_forward _ _ _ := rfl
@@ -451,29 +503,40 @@ end WithMonoidQuasiUnipotent
 /-! ### Isometry and the radical -/
 
 /-- `S` is an isometry of `χ`. -/
-theorem χ_S_S (A : BilinearLattice.{u}) (x y : A) : A.χ (A.S x) (A.S y) = A.χ x y := by
+theorem χ_S_S (A : BilinearLattice.{u}) (x y : A) :
+  A.χ (A.S x) (A.S y) = A.χ x y := by
   rw [A.χ_S x y, A.χ_S y (A.S x), neg_neg]
 
-/-- `r` lies in the radical of the symmetrization `χ x y + χ y x`. -/
+/-- `r` lies in the radical of
+the symmetrization `χ x y + χ y x`. -/
 def IsRadical (A : BilinearLattice.{u}) (r : A) : Prop :=
   ∀ y, A.χ r y + A.χ y r = 0
 
-/-- `S` fixes the radical of the symmetrized form pointwise. -/
+/-- `S` fixes the radical
+of the symmetrized form pointwise. -/
 theorem S_eq_self_of_isRadical (A : BilinearLattice.{u}) {r : A} (hr : A.IsRadical r) :
     A.S r = r := by
   refine sub_eq_zero.1 (A.nondegenerate.2 _ fun x ↦ ?_)
   rw [map_sub, sub_eq_zero, ← neg_inj, ← A.χ_S r x]
   linarith [hr x]
 
-/-- Deferred data: when the symmetrized form is positive semidefinite, `S` is quasi-unipotent of
-index at most `2`, and of index `1` (finite order) when it is positive definite.
+/-- Deferred data:
+when the symmetrized form is positive semidefinite
+`S` is quasi-unipotent of index at most `2`
+and of index `1` (finite order) when
+it is positive definite.
 
-Both hold for every bilinear lattice: `S` preserves the symmetrized form `q` (`χ_S_S`) and fixes
-its radical `R` (`S_eq_self_of_isRadical`); on `G / R` the form `q` is positive definite, so its
-isometry group is finite and some `S ^ m` is the identity there; then `S ^ m - 1` maps `G` into
-`R` and kills `R`. The finiteness of the isometry group of a positive definite lattice is the
-heavy step, so the result is supplied as an instance rather than proved here. The converse fails
-in general: a negative definite symmetric `χ` has `S = -1`. -/
+These hold for every bilinear lattice:
+- `S` preserves the symmetrized form `q` (`χ_S_S`)
+- `S` fixes its radical `R` (`S_eq_self_of_isRadical`)
+
+Using the positive semidefiniteness,
+on `G / R` the form `q` is positive definite, so its
+isometry group is finite and some `S ^ m` is the identity there
+Therefore `S ^ m - 1` maps `G` into `R` and kills `R`.
+
+The finiteness of the isometry group of a positive definite lattice is the
+heavy step, so the result is supplied as an instance rather than proved here. -/
 class IsPsdQuasiUnipotent (A : BilinearLattice.{u}) : Prop where
   quasiUnipotent_of_nonneg :
     (∀ x, 0 ≤ A.χ x x) → Module.End.IsQuasiUnipotentOfIndex (A.S : Module.End ℤ A) 2
@@ -488,8 +551,9 @@ open Matrix
 
 variable {n : ℕ}
 
-/-- The bilinear lattice on `Fin n → ℤ` with Gram matrix `C`, where `det C` is a unit. Its
-Coxeter transformation is `S = -C⁻¹ Cᵀ`. -/
+/-- The bilinear lattice on `Fin n → ℤ`
+with Gram matrix `C`, where `det C` is a unit.
+Its Coxeter transformation is `S = -C⁻¹ Cᵀ`. -/
 noncomputable def ofUnimodular (C : Matrix (Fin n) (Fin n) ℤ) (hC : IsUnit C.det) :
     BilinearLattice.{0} where
   carrier := Fin n → ℤ
@@ -508,15 +572,66 @@ noncomputable def ofUnimodular (C : Matrix (Fin n) (Fin n) ℤ) (hC : IsUnit C.d
       neg_mulVec, dotProduct_neg, neg_neg, dotProduct_mulVec y, vecMul_transpose,
       dotProduct_comm]
 
-theorem ofUnimodular_χ_apply (C : Matrix (Fin n) (Fin n) ℤ) (hC : IsUnit C.det)
-    (x y : Fin n → ℤ) : (ofUnimodular C hC).χ x y = x ⬝ᵥ (C *ᵥ y) :=
+theorem ofUnimodular_χ_apply
+  (C : Matrix (Fin n) (Fin n) ℤ)
+  (hC : IsUnit C.det) (x y : Fin n → ℤ) :
+  (ofUnimodular C hC).χ x y = x ⬝ᵥ (C *ᵥ y) :=
   toLinearMap₂'_apply' C x y
+
+/-- The Coxeter transformation of `ofUnimodular C hC` is characterized by `C (S x) = -Cᵀ x`. -/
+theorem ofUnimodular_S_eq_iff
+  (C : Matrix (Fin n) (Fin n) ℤ)
+  (hC : IsUnit C.det) (x z : Fin n → ℤ) :
+  (ofUnimodular C hC).S x = z ↔ C *ᵥ z = -(Cᵀ *ᵥ x) := by
+  change (-(C⁻¹ * Cᵀ)) *ᵥ x = z ↔ _
+  constructor
+  · rintro rfl
+    rw [mulVec_mulVec, Matrix.mul_neg, ← Matrix.mul_assoc, mul_nonsing_inv _ hC, Matrix.one_mul,
+      neg_mulVec]
+  · intro h
+    rw [neg_mulVec, ← mulVec_mulVec, ← mulVec_neg, ← h, mulVec_mulVec, nonsing_inv_mul _ hC,
+      one_mulVec]
+
+/-- If `C * Q = -Cᵀ` then `Q` is the matrix of the Coxeter transformation of
+`ofUnimodular C hC`, so `S ^ m = 1` as soon as `Q ^ m = 1`. -/
+theorem ofUnimodular_S_pow_eq_one
+  (C : Matrix (Fin n) (Fin n) ℤ)
+  (hC : IsUnit C.det) (Q : Matrix (Fin n) (Fin n) ℤ) (hQ : C * Q = -Cᵀ) {m : ℕ}
+  (hm : Q ^ m = 1) :
+  ((ofUnimodular C hC).S : Module.End ℤ (ofUnimodular C hC)) ^ m = 1 := by
+  have hS : ((ofUnimodular C hC).S : Module.End ℤ (ofUnimodular C hC)) = Matrix.toLin' Q :=
+    LinearMap.ext fun x ↦
+      (ofUnimodular_S_eq_iff C hC x (Q *ᵥ x)).2 (by rw [mulVec_mulVec, hQ, neg_mulVec])
+  have h := Matrix.toLin'_pow Q m
+  rw [hm, Matrix.toLin'_one] at h
+  rw [hS]
+  exact h.symm
 
 /-- The cone of dimension vectors `ℕⁿ ⊆ ℤⁿ`. -/
 def positiveCone (n : ℕ) : AddSubmonoid (Fin n → ℤ) where
   carrier := {x | ∀ i, 0 ≤ x i}
   add_mem' hx hy i := add_nonneg (hx i) (hy i)
   zero_mem' _ := le_rfl
+
+/-- The bilinear lattice on `Fin n → ℤ`
+with Gram matrix `C`, where `det C` is a unit
+and that it is positive semidefinite.
+Its Coxeter transformation is `S = -C⁻¹ Cᵀ`.
+This gives an object of `BilinearLatticeWithMonoidQuasiUnipotent`
+with distinguished submonoid `ℕⁿ ⊆ ℤⁿ` and
+quasi-unipotence of index at most `2`
+from the positive semidefinite condition. -/
+noncomputable def ofUnimodularWithMonoidQuasiUnipotent
+  (C : Matrix (Fin n) (Fin n) ℤ)
+  (hC : IsUnit C.det)
+  (hC2 : ∀ x, 0 ≤ x ⬝ᵥ (C *ᵥ x))
+  [hA : IsPsdQuasiUnipotent (ofUnimodular C hC)]
+:
+    BilinearLatticeWithMonoidQuasiUnipotent where
+  toBilinearLattice := ofUnimodular C hC
+  P := positiveCone n
+  isQuasiUnipotent := hA.quasiUnipotent_of_nonneg fun x ↦ by
+    simp only [ofUnimodular_χ_apply, hC2]
 
 end Matrix
 

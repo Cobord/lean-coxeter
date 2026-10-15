@@ -70,6 +70,8 @@ proof_wanted affineTypeG2_isIrreducibleAffineWeyl :
 
 /-! ### Euler lattices of `Ẽ₆`, `Ẽ₇`, `Ẽ₈` -/
 
+section EulerLattice
+
 /-- The Euler lattice of type `Ẽ₆` (see `Coxeter.BilinearLatticeDynkins`). -/
 noncomputable abbrev affineTypeE6BilinearLattice : BilinearLattice.{0} :=
   BilinearLattice.eulerLattice affineTypeE6Matrix
@@ -77,11 +79,12 @@ noncomputable abbrev affineTypeE6BilinearLattice : BilinearLattice.{0} :=
 proof_wanted affineTypeE6_isSimplyLaced : BilinearLattice.IsSimplyLaced affineTypeE6Matrix
 
 /-- `S` is quasi-unipotent of index exactly `2`. -/
-proof_wanted affineTypeE6BilinearLattice_isQuasiUnipotent :
+theorem affineTypeE6BilinearLattice_isQuasiUnipotent :
     Module.End.IsQuasiUnipotentOfIndex
       (affineTypeE6BilinearLattice.S : Module.End ℤ affineTypeE6BilinearLattice) 2 ∧
     ¬ Module.End.IsQuasiUnipotentOfIndex
-      (affineTypeE6BilinearLattice.S : Module.End ℤ affineTypeE6BilinearLattice) 1
+      (affineTypeE6BilinearLattice.S : Module.End ℤ affineTypeE6BilinearLattice) 1 := by
+  sorry
 
 /-- The Euler lattice of type `Ẽ₇` (see `Coxeter.BilinearLatticeDynkins`). -/
 noncomputable abbrev affineTypeE7BilinearLattice : BilinearLattice.{0} :=
@@ -90,11 +93,12 @@ noncomputable abbrev affineTypeE7BilinearLattice : BilinearLattice.{0} :=
 proof_wanted affineTypeE7_isSimplyLaced : BilinearLattice.IsSimplyLaced affineTypeE7Matrix
 
 /-- `S` is quasi-unipotent of index exactly `2`. -/
-proof_wanted affineTypeE7BilinearLattice_isQuasiUnipotent :
+theorem affineTypeE7BilinearLattice_isQuasiUnipotent :
     Module.End.IsQuasiUnipotentOfIndex
       (affineTypeE7BilinearLattice.S : Module.End ℤ affineTypeE7BilinearLattice) 2 ∧
     ¬ Module.End.IsQuasiUnipotentOfIndex
-      (affineTypeE7BilinearLattice.S : Module.End ℤ affineTypeE7BilinearLattice) 1
+      (affineTypeE7BilinearLattice.S : Module.End ℤ affineTypeE7BilinearLattice) 1 := by
+  sorry
 
 /-- The Euler lattice of type `Ẽ₈` (see `Coxeter.BilinearLatticeDynkins`). -/
 noncomputable abbrev affineTypeE8BilinearLattice : BilinearLattice.{0} :=
@@ -103,10 +107,31 @@ noncomputable abbrev affineTypeE8BilinearLattice : BilinearLattice.{0} :=
 proof_wanted affineTypeE8_isSimplyLaced : BilinearLattice.IsSimplyLaced affineTypeE8Matrix
 
 /-- `S` is quasi-unipotent of index exactly `2`. -/
-proof_wanted affineTypeE8BilinearLattice_isQuasiUnipotent :
+theorem affineTypeE8BilinearLattice_isQuasiUnipotent :
     Module.End.IsQuasiUnipotentOfIndex
       (affineTypeE8BilinearLattice.S : Module.End ℤ affineTypeE8BilinearLattice) 2 ∧
     ¬ Module.End.IsQuasiUnipotentOfIndex
-      (affineTypeE8BilinearLattice.S : Module.End ℤ affineTypeE8BilinearLattice) 1
+      (affineTypeE8BilinearLattice.S : Module.End ℤ affineTypeE8BilinearLattice) 1 := by
+  sorry
+
+noncomputable abbrev affineTypeE6BilinearLatticeWithMonoidQuasiUnipotent :
+    BilinearLattice.BilinearLatticeWithMonoidQuasiUnipotent.{0} :=
+  BilinearLattice.eulerLatticeWithMonoidQuasiUnipotent
+    (M := affineTypeE6Matrix)
+    (hS := affineTypeE6BilinearLattice_isQuasiUnipotent.1)
+
+noncomputable abbrev affineTypeE7BilinearLatticeWithMonoidQuasiUnipotent :
+    BilinearLattice.BilinearLatticeWithMonoidQuasiUnipotent.{0} :=
+  BilinearLattice.eulerLatticeWithMonoidQuasiUnipotent
+    (M := affineTypeE7Matrix)
+    (hS := affineTypeE7BilinearLattice_isQuasiUnipotent.1)
+
+noncomputable abbrev affineTypeE8BilinearLatticeWithMonoidQuasiUnipotent :
+    BilinearLattice.BilinearLatticeWithMonoidQuasiUnipotent.{0} :=
+  BilinearLattice.eulerLatticeWithMonoidQuasiUnipotent
+    (M := affineTypeE8Matrix)
+    (hS := affineTypeE8BilinearLattice_isQuasiUnipotent.1)
+
+end EulerLattice
 
 end Coxeter

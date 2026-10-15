@@ -31,6 +31,8 @@ proof_wanted affineTypeD_isIrreducibleAffineWeyl (n : ℕ) [NeZero n] :
 
 /-! ### Euler lattice -/
 
+section EulerLattice
+
 /-- The Euler lattice of type `D̃ₙ`, `n ≥ 4` (see `Coxeter.BilinearLatticeDynkins`). -/
 noncomputable abbrev affineTypeDBilinearLattice (n : ℕ) (_ : 4 ≤ n) : BilinearLattice.{0} :=
   BilinearLattice.eulerLattice (affineTypeDMatrix n)
@@ -40,10 +42,19 @@ proof_wanted affineTypeD_isSimplyLaced (n : ℕ) (_ : 4 ≤ n) :
 
 /-- `S` is quasi-unipotent of index exactly `2`: the null root gives a Jordan block of size `2`
 at eigenvalue `1`. -/
-proof_wanted affineTypeDBilinearLattice_isQuasiUnipotent (n : ℕ) (hn : 4 ≤ n) :
+theorem affineTypeDBilinearLattice_isQuasiUnipotent (n : ℕ) (hn : 4 ≤ n) :
     Module.End.IsQuasiUnipotentOfIndex
       ((affineTypeDBilinearLattice n hn).S : Module.End ℤ (affineTypeDBilinearLattice n hn)) 2 ∧
     ¬ Module.End.IsQuasiUnipotentOfIndex
-      ((affineTypeDBilinearLattice n hn).S : Module.End ℤ (affineTypeDBilinearLattice n hn)) 1
+      ((affineTypeDBilinearLattice n hn).S : Module.End ℤ (affineTypeDBilinearLattice n hn)) 1 := by
+  sorry
+
+noncomputable abbrev affineTypeDBilinearLatticeWithMonoidQuasiUnipotent (n : ℕ) (hn : 4 ≤ n) :
+    BilinearLattice.BilinearLatticeWithMonoidQuasiUnipotent.{0} :=
+  BilinearLattice.eulerLatticeWithMonoidQuasiUnipotent
+    (M := affineTypeDMatrix n)
+    (hS := (affineTypeDBilinearLattice_isQuasiUnipotent n hn).1)
+
+end EulerLattice
 
 end Coxeter

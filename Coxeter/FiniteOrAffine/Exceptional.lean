@@ -109,34 +109,95 @@ proof_wanted typeH4_isFiniteCoxeter : @IsFiniteCoxeter _ typeH4Group
 
 /-! ### Euler lattices of `E₆`, `E₇`, `E₈` -/
 
+section EulerLattice
+
 /-- The Euler lattice of type `E₆` (see `Coxeter.BilinearLatticeDynkins`). -/
 noncomputable abbrev typeE6BilinearLattice : BilinearLattice.{0} :=
   BilinearLattice.eulerLattice CoxeterMatrix.E₆
 
-proof_wanted typeE6_isSimplyLaced : BilinearLattice.IsSimplyLaced CoxeterMatrix.E₆
+theorem typeE6_isSimplyLaced : BilinearLattice.IsSimplyLaced CoxeterMatrix.E₆ := by
+  unfold BilinearLattice.IsSimplyLaced; decide
 
 /-- The Coxeter number of `E₆` is `12`. -/
-proof_wanted typeE6BilinearLattice_S_pow :
-    (typeE6BilinearLattice.S : Module.End ℤ typeE6BilinearLattice) ^ 12 = 1
+private def typeE6CoxeterTransformation : Matrix (Fin 6) (Fin 6) ℤ :=
+  !![0, 1, 0, 0, 0, -1;
+     0, 0, 1, 0, 0, -1;
+     1, 1, 0, 0, 0, -1;
+     0, 1, 1, 0, 0, -1;
+     0, 0, 0, 1, 0, -1;
+     0, 0, 0, 0, 1, -1]
+set_option maxRecDepth 100000 in
+theorem typeE6BilinearLattice_S_pow :
+    (typeE6BilinearLattice.S : Module.End ℤ typeE6BilinearLattice) ^ 12 = 1 :=
+  BilinearLattice.ofUnimodular_S_pow_eq_one _ _ typeE6CoxeterTransformation (by decide)
+    (by decide)
 
 /-- The Euler lattice of type `E₇` (see `Coxeter.BilinearLatticeDynkins`). -/
 noncomputable abbrev typeE7BilinearLattice : BilinearLattice.{0} :=
   BilinearLattice.eulerLattice CoxeterMatrix.E₇
 
-proof_wanted typeE7_isSimplyLaced : BilinearLattice.IsSimplyLaced CoxeterMatrix.E₇
+theorem typeE7_isSimplyLaced : BilinearLattice.IsSimplyLaced CoxeterMatrix.E₇ := by
+  unfold BilinearLattice.IsSimplyLaced; decide
 
 /-- The Coxeter number of `E₇` is `18`. -/
-proof_wanted typeE7BilinearLattice_S_pow :
-    (typeE7BilinearLattice.S : Module.End ℤ typeE7BilinearLattice) ^ 18 = 1
+private def typeE7CoxeterTransformation : Matrix (Fin 7) (Fin 7) ℤ :=
+  !![0, 1, 0, 0, 0, 0, -1;
+     0, 0, 1, 0, 0, 0, -1;
+     1, 1, 0, 0, 0, 0, -1;
+     0, 1, 1, 0, 0, 0, -1;
+     0, 0, 0, 1, 0, 0, -1;
+     0, 0, 0, 0, 1, 0, -1;
+     0, 0, 0, 0, 0, 1, -1]
+set_option maxRecDepth 100000 in
+theorem typeE7BilinearLattice_S_pow :
+    (typeE7BilinearLattice.S : Module.End ℤ typeE7BilinearLattice) ^ 18 = 1 :=
+  BilinearLattice.ofUnimodular_S_pow_eq_one _ _ typeE7CoxeterTransformation (by decide)
+    (by decide)
 
 /-- The Euler lattice of type `E₈` (see `Coxeter.BilinearLatticeDynkins`). -/
 noncomputable abbrev typeE8BilinearLattice : BilinearLattice.{0} :=
   BilinearLattice.eulerLattice CoxeterMatrix.E₈
 
-proof_wanted typeE8_isSimplyLaced : BilinearLattice.IsSimplyLaced CoxeterMatrix.E₈
+theorem typeE8_isSimplyLaced : BilinearLattice.IsSimplyLaced CoxeterMatrix.E₈ := by
+  unfold BilinearLattice.IsSimplyLaced; decide
 
 /-- The Coxeter number of `E₈` is `30`. -/
-proof_wanted typeE8BilinearLattice_S_pow :
-    (typeE8BilinearLattice.S : Module.End ℤ typeE8BilinearLattice) ^ 30 = 1
+private def typeE8CoxeterTransformation : Matrix (Fin 8) (Fin 8) ℤ :=
+  !![0, 1, 0, 0, 0, 0, 0, -1;
+     0, 0, 1, 0, 0, 0, 0, -1;
+     1, 1, 0, 0, 0, 0, 0, -1;
+     0, 1, 1, 0, 0, 0, 0, -1;
+     0, 0, 0, 1, 0, 0, 0, -1;
+     0, 0, 0, 0, 1, 0, 0, -1;
+     0, 0, 0, 0, 0, 1, 0, -1;
+     0, 0, 0, 0, 0, 0, 1, -1]
+set_option maxRecDepth 100000 in
+theorem typeE8BilinearLattice_S_pow :
+    (typeE8BilinearLattice.S : Module.End ℤ typeE8BilinearLattice) ^ 30 = 1 :=
+  BilinearLattice.ofUnimodular_S_pow_eq_one _ _ typeE8CoxeterTransformation (by decide)
+    (by decide)
+
+noncomputable abbrev typeE6BilinearLatticeWithMonoidQuasiUnipotent :
+    BilinearLattice.BilinearLatticeWithMonoidQuasiUnipotent.{0} :=
+  BilinearLattice.eulerLatticeWithMonoidQuasiUnipotent
+    (M := CoxeterMatrix.E₆)
+    (hS := Module.End.isQuasiUnipotentOfIndex_of_pow_eq_one (by norm_num)
+      typeE6BilinearLattice_S_pow two_pos)
+
+noncomputable abbrev typeE7BilinearLatticeWithMonoidQuasiUnipotent :
+    BilinearLattice.BilinearLatticeWithMonoidQuasiUnipotent.{0} :=
+  BilinearLattice.eulerLatticeWithMonoidQuasiUnipotent
+    (M := CoxeterMatrix.E₇)
+    (hS := Module.End.isQuasiUnipotentOfIndex_of_pow_eq_one (by norm_num)
+      typeE7BilinearLattice_S_pow two_pos)
+
+noncomputable abbrev typeE8BilinearLatticeWithMonoidQuasiUnipotent :
+    BilinearLattice.BilinearLatticeWithMonoidQuasiUnipotent.{0} :=
+  BilinearLattice.eulerLatticeWithMonoidQuasiUnipotent
+    (M := CoxeterMatrix.E₈)
+    (hS := Module.End.isQuasiUnipotentOfIndex_of_pow_eq_one (by norm_num)
+      typeE8BilinearLattice_S_pow two_pos)
+
+end EulerLattice
 
 end Coxeter

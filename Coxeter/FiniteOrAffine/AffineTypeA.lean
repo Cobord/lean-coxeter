@@ -31,6 +31,8 @@ proof_wanted affineTypeA_isIrreducibleAffineWeyl (n : ℕ) [NeZero n] :
 
 /-! ### Euler lattice -/
 
+section EulerLattice
+
 /-- The Euler lattice of type `Ãₙ` (see `Coxeter.BilinearLatticeDynkins`). It needs `n ≥ 2`:
 `Ã₁` is the Kronecker quiver, with a double edge, so it is not simply laced. -/
 noncomputable abbrev affineTypeABilinearLattice (n : ℕ) (_ : 2 ≤ n) : BilinearLattice.{0} :=
@@ -41,10 +43,19 @@ proof_wanted affineTypeA_isSimplyLaced (n : ℕ) (_ : 2 ≤ n) :
 
 /-- `S` is quasi-unipotent of index exactly `2`: the null root gives a Jordan block of size `2`
 at eigenvalue `1`. -/
-proof_wanted affineTypeABilinearLattice_isQuasiUnipotent (n : ℕ) (hn : 2 ≤ n) :
+theorem affineTypeABilinearLattice_isQuasiUnipotent (n : ℕ) (hn : 2 ≤ n) :
     Module.End.IsQuasiUnipotentOfIndex
       ((affineTypeABilinearLattice n hn).S : Module.End ℤ (affineTypeABilinearLattice n hn)) 2 ∧
     ¬ Module.End.IsQuasiUnipotentOfIndex
-      ((affineTypeABilinearLattice n hn).S : Module.End ℤ (affineTypeABilinearLattice n hn)) 1
+      ((affineTypeABilinearLattice n hn).S : Module.End ℤ (affineTypeABilinearLattice n hn)) 1 := by
+  sorry
+
+noncomputable abbrev affineTypeABilinearLatticeWithMonoidQuasiUnipotent (n : ℕ) (hn : 2 ≤ n) :
+    BilinearLattice.BilinearLatticeWithMonoidQuasiUnipotent.{0} :=
+  BilinearLattice.eulerLatticeWithMonoidQuasiUnipotent
+    (M := affineTypeAMatrix n)
+    (hS := (affineTypeABilinearLattice_isQuasiUnipotent n hn).1)
+
+end EulerLattice
 
 end Coxeter

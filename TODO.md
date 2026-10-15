@@ -41,11 +41,7 @@ generators:
 
 ## Bilinear lattices (Coxeter/BilinearLattice.lean, Coxeter/BilinearLatticeDynkins.lean)
 
-- **Deferred data, don't prove in general**: `BilinearLattice.IsPsdQuasiUnipotent` (positive
-  semidefinite `χ + χᵀ` ⇒ `S` quasi-unipotent of index `≤ 2`; positive definite ⇒ finite order).
-  Same treatment as `Matsumoto`: the heavy step is finiteness of the isometry group of a positive
-  definite lattice. Concrete types supply the instance directly; for Dynkin types it follows from
-  the per-type `S_pow` goals in `Coxeter/FiniteOrAffine/TODO.md`.
+- **Deferred data, don't prove in general**: 
 - `proof_wanted isPosSemidef_of_isQuasiUnipotentOfIndex` (`BilinearLatticeDynkins.lean`):
   **A'Campo**, the converse for Euler lattices of simply-laced diagrams — if `S` is
   quasi-unipotent of any index then `bil` is positive semidefinite. Needs the spectral-radius

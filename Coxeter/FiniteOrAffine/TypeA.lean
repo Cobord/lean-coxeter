@@ -234,14 +234,116 @@ theorem typeA_isIrreducibleFiniteWeyl (m : ℕ) : @IsIrreducibleFiniteWeyl _ (ty
 
 /-! ### Euler lattice -/
 
+section EulerLattice
+
 /-- The Euler lattice of type `Aₙ` (see `Coxeter.BilinearLatticeDynkins`). -/
 noncomputable abbrev typeABilinearLattice (n : ℕ) : BilinearLattice.{0} :=
   BilinearLattice.eulerLattice (CoxeterMatrix.A n)
 
-proof_wanted typeA_isSimplyLaced (n : ℕ) : BilinearLattice.IsSimplyLaced (CoxeterMatrix.A n)
+theorem typeA_isSimplyLaced (n : ℕ) : BilinearLattice.IsSimplyLaced (CoxeterMatrix.A n) := by
+  intro i j hij
+  unfold CoxeterMatrix.A
+  simp only [Matrix.of_apply, if_neg hij]
+  split_ifs <;> simp
+
+/-- The Euler form of type `Aₙ` is nonnegative on `ℤⁿ`, since its Coxeter form is positive
+semidefinite (`bil_typeA_isNonneg`). -/
+theorem typeA_eulerMatrix_nonneg (n : ℕ) (x : Fin n → ℤ) :
+    0 ≤ x ⬝ᵥ (BilinearLattice.eulerMatrix (CoxeterMatrix.A n)).mulVec x := by
+  cases n with
+  | zero => simp
+  | succ m =>
+      rw [← BilinearLattice.ofUnimodular_χ_apply (BilinearLattice.eulerMatrix _)
+        (by rw [BilinearLattice.det_eulerMatrix]; exact isUnit_one)]
+      exact BilinearLattice.eulerLattice_χ_self_nonneg _ (typeA_isSimplyLaced (m + 1))
+        ⟨@bil_isSymm _ (typeAGroup (m + 1)), bil_typeA_isNonneg m⟩ x
+
+/-- The Euler matrix of type `Aₙ`: `1` on the diagonal, `-1` just above it. -/
+private theorem eulerMatrix_typeA_apply (n : ℕ) (i j : Fin n) :
+    BilinearLattice.eulerMatrix (CoxeterMatrix.A n) i j =
+      (if i = j then 1 else 0) - (if (i : ℕ) + 1 = j then 1 else 0) := by
+  unfold BilinearLattice.eulerMatrix CoxeterMatrix.A
+  simp only [Matrix.of_apply, Fin.lt_def, Fin.ext_iff]
+  split_ifs <;> omega
+
+/-- The Coxeter transformation of `Aₙ` shifts `e_k` to `e_(k+1)`. -/
+private theorem typeA_S_single_succ (n k : ℕ) (hk : k + 1 < n) :
+    (typeABilinearLattice n).S (Pi.single ⟨k, by omega⟩ 1) = Pi.single ⟨k + 1, hk⟩ 1 := by
+  unfold typeABilinearLattice BilinearLattice.eulerLattice
+  rw [BilinearLattice.ofUnimodular_S_eq_iff]
+  ext i
+  simp only [Matrix.mulVec_single_one, Matrix.col_apply, Matrix.transpose_apply, Pi.neg_apply,
+    eulerMatrix_typeA_apply, Fin.ext_iff]
+  split_ifs <;> omega
+
+/-- The Coxeter transformation of `Aₙ` sends the last `e_m` to `-(1, …, 1)`. -/
+private theorem typeA_S_single_last (m : ℕ) :
+    (typeABilinearLattice (m + 1)).S (Pi.single (Fin.last m) 1) = fun _ ↦ -1 := by
+  unfold typeABilinearLattice BilinearLattice.eulerLattice
+  rw [BilinearLattice.ofUnimodular_S_eq_iff]
+  ext i
+  simp only [Matrix.mulVec_single_one, Matrix.col_apply, Matrix.transpose_apply, Pi.neg_apply,
+    eulerMatrix_typeA_apply, Matrix.mulVec, dotProduct, mul_neg, mul_one,
+    Finset.sum_neg_distrib, Finset.sum_sub_distrib, Finset.sum_ite_eq, Finset.mem_univ, if_true]
+  by_cases hi : (i : ℕ) + 1 < m + 1
+  · have : ∀ j : Fin (m + 1), ((i : ℕ) + 1 = j) ↔ ((⟨i + 1, hi⟩ : Fin (m + 1)) = j) := by
+      intro j; rw [Fin.ext_iff]
+    simp only [this, Finset.sum_ite_eq, Finset.mem_univ, if_true]
+    simp only [Fin.ext_iff, Fin.val_last]
+    split_ifs <;> omega
+  · have : ∀ j : Fin (m + 1), ¬((i : ℕ) + 1 = j) := fun j ↦ by omega
+    simp only [this, if_false, Finset.sum_const_zero, Fin.ext_iff, Fin.val_last]
+    split_ifs <;> omega
+
+/-- `e_0` is a cyclic vector for the Coxeter transformation of `Aₙ`: `S ^ k e_0 = e_k`. -/
+private theorem typeA_S_pow_single_zero (m k : ℕ) (hk : k < m + 1) :
+    (((typeABilinearLattice (m + 1)).S : Module.End ℤ (typeABilinearLattice (m + 1))) ^ k)
+      (Pi.single 0 1) = Pi.single ⟨k, hk⟩ 1 := by
+  induction k with
+  | zero => rfl
+  | succ k ih =>
+      rw [pow_succ', Module.End.mul_apply, ih (by omega)]
+      exact typeA_S_single_succ (m + 1) k hk
 
 /-- The Coxeter number of `Aₙ` is `n + 1`. -/
-proof_wanted typeABilinearLattice_S_pow (n : ℕ) :
-    ((typeABilinearLattice n).S : Module.End ℤ (typeABilinearLattice n)) ^ (n + 1) = 1
+theorem typeABilinearLattice_S_pow (n : ℕ) :
+    ((typeABilinearLattice n).S : Module.End ℤ (typeABilinearLattice n)) ^ (n + 1) = 1 := by
+  cases n with
+  | zero => exact LinearMap.ext fun _ ↦ Subsingleton.elim (α := Fin 0 → ℤ) _ _
+  | succ m =>
+      set S := ((typeABilinearLattice (m + 1)).S : Module.End ℤ (typeABilinearLattice (m + 1)))
+      set T := ∑ k ∈ Finset.range (m + 2), S ^ k
+      have hT0 : T (Pi.single 0 1) = 0 := by
+        rw [LinearMap.coe_sum, Finset.sum_apply, Finset.sum_range_succ,
+          ← Fin.sum_univ_eq_sum_range (fun k ↦ (S ^ k) (Pi.single 0 1))]
+        rw [Finset.sum_congr rfl fun (k : Fin (m + 1)) _ ↦ typeA_S_pow_single_zero m k k.isLt]
+        simp only [Fin.eta]
+        rw [pow_succ', Module.End.mul_apply, typeA_S_pow_single_zero m m (by omega)]
+        erw [Finset.univ_sum_single (fun _ ↦ (1 : ℤ)), typeA_S_single_last]
+        exact funext fun _ ↦ add_neg_cancel (1 : ℤ)
+      have hT : T = 0 := (Pi.basisFun ℤ (Fin (m + 1))).ext fun j ↦ by
+        have hcomm : T * S ^ (j : ℕ) = S ^ (j : ℕ) * T := by
+          simp only [T, Finset.sum_mul, Finset.mul_sum]
+          exact Finset.sum_congr rfl fun k _ ↦ pow_mul_comm _ _ _
+        rw [Pi.basisFun_apply, ← typeA_S_pow_single_zero m j j.isLt]
+        change (T * S ^ (j : ℕ)) (Pi.single 0 1) = 0
+        rw [hcomm, Module.End.mul_apply, hT0, map_zero]
+      rw [← sub_eq_zero, ← geom_sum_mul]
+      change T * (S - 1) = 0
+      rw [hT, zero_mul]
+
+/-- `S` has finite order for `Aₙ`, so both halves of `IsPsdQuasiUnipotent` hold outright. -/
+instance (n : ℕ) : BilinearLattice.IsPsdQuasiUnipotent (typeABilinearLattice n) where
+  quasiUnipotent_of_nonneg _ := ⟨n + 1, n.succ_pos, by rw [typeABilinearLattice_S_pow]; simp⟩
+  quasiUnipotent_of_pos _ := ⟨n + 1, n.succ_pos, by rw [typeABilinearLattice_S_pow]; simp⟩
+
+noncomputable abbrev typeABilinearLatticeWithMonoidQuasiUnipotent (n : ℕ) :
+  BilinearLattice.BilinearLatticeWithMonoidQuasiUnipotent.{0} :=
+  BilinearLattice.eulerLatticeWithMonoidQuasiUnipotent
+    (M := CoxeterMatrix.A n)
+    (hS := Module.End.isQuasiUnipotentOfIndex_of_pow_eq_one n.succ_pos
+      (typeABilinearLattice_S_pow n) two_pos)
+
+end EulerLattice
 
 end Coxeter

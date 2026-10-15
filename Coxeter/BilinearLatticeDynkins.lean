@@ -13,37 +13,52 @@ This file connects `Coxeter.BilinearLattice` and
 
 ## The dictionary
 
-Let `M` be a *simply-laced* Coxeter matrix on `Fin n` (`M i j ∈ {2, 3}` off the diagonal), and
-orient each edge `i — j` of its diagram from the smaller to the larger index. This orientation
-gives a quiver without oriented cycles. Its **Euler form** has Gram matrix `C = eulerMatrix M`,
-which is upper unitriangular: `C i i = 1`, and `C i j = -1` for `i < j` joined by an edge.
+Let `M` be a *simply-laced* Coxeter matrix on
+`Fin n` (`M i j ∈ {2, 3}` off the diagonal), and
+orient each edge `i — j` of its diagram from the smaller to the larger index.
+This orientation gives a quiver without oriented cycles.
+Its **Euler form** has Gram matrix `C = eulerMatrix M`,
+which is upper unitriangular: `C i i = 1`, and
+`C i j = -1` for `i < j` joined by an edge.
 
-* `χ x y = xᵀ C y` is unimodular, since `det C = 1` (`det_eulerMatrix`).
-* `S = -C⁻¹ Cᵀ` is the **Coxeter transformation** (`ofUnimodular`).
-* The symmetrization `C + Cᵀ` is the Cartan matrix, which is twice the Gram matrix of the
-  Coxeter form `bil` (`eulerMatrix_add_transpose`). So the quadratic form `x ↦ χ x x` is the
+* `χ x y = xᵀ C y` is unimodular,
+since `det C = 1` (`det_eulerMatrix`).
+* `S = -C⁻¹ Cᵀ` is the **Coxeter transformation**
+  (`ofUnimodular`).
+* The symmetrization `C + Cᵀ`
+  is the Cartan matrix, which is twice the Gram matrix of the
+  Coxeter form `bil` (`eulerMatrix_add_transpose`).
+  So the quadratic form `x ↦ χ x x` is the
   restriction of `bil` to the root lattice `ℤⁿ` (`eulerLattice_χ_self`).
 * The distinguished submonoid is the cone of dimension vectors `positiveCone n`.
-* Disjoint unions of diagrams correspond to the orthogonal direct sum `BilinearLattice.prod`.
+* Disjoint unions of diagrams
+  correspond to the orthogonal direct sum `BilinearLattice.prod`.
 
-Under this dictionary, the classification of the diagram is reflected by `S`:
+Under this dictionary,
+the classification of the diagram is reflected by `S`:
 
 * **Dynkin** (`bil` positive definite): `S` has finite order (the Coxeter number), so it is
-  quasi-unipotent of index `1`.
-* **Extended Dynkin** (`bil` positive semidefinite with nonzero radical): `S` fixes the radical
-  and has finite order modulo it, so it is quasi-unipotent of index `2` but not `1`.
+  quasi-unipotent of index `1`. This is for case of disjoint union of Dynkin diagrams
+  which is the only case of positive definite `bil` within this realm.
+* **Extended Dynkin** (`bil` positive semidefinite with nonzero radical):
+  `S` fixes the radical and has finite order modulo it,
+  so it is quasi-unipotent of index `2` but not `1`.
+  This is for the case of disjoint union of extended Dynkin diagrams,
+  (at least one of which is extended)
+  which is the only case of positive semidefinite `bil` within this realm.
 * Otherwise (`bil` indefinite) the spectral radius of `S` exceeds `1` (A'Campo), so `S` is not
   quasi-unipotent of any index.
 
-So among Euler lattices of simply-laced diagrams, the objects of `WithMonoidQuasiUnipotent` are
-exactly the disjoint unions of Dynkin and extended Dynkin diagrams. The forward direction goes
-through the deferred `IsPsdQuasiUnipotent`; the converse is A'Campo's theorem (`proof_wanted`
-below). Each type's Euler lattice is named in its own file under `Coxeter.FiniteOrAffine`
-(e.g. `typeABilinearLattice`, `affineTypeDBilinearLattice`).
+So among Euler lattices of simply-laced diagrams,
+the objects of `WithMonoidQuasiUnipotent` are
+exactly the disjoint unions of Dynkin and extended Dynkin diagrams.
+The forward direction goes
+through the deferred `IsPsdQuasiUnipotent`
+The converse is A'Campo's theorem (`proof_wanted`
+below).
 
-Non-simply-laced diagrams need valued quivers (species), with `C` built from a symmetrizable
-generalized Cartan matrix and its symmetrizer. `Ã₁` (the Kronecker quiver, `M = 0`) has a double
-edge and is also excluded. Neither is treated here.
+Each type's Euler lattice is named in its own file under `Coxeter.FiniteOrAffine`
+(e.g. `typeABilinearLattice`, `affineTypeDBilinearLattice`).
 
 ## Main definitions
 
@@ -67,13 +82,17 @@ open _root_.Matrix
 
 variable {n : ℕ}
 
-/-- A Coxeter matrix is *simply laced* if every off-diagonal entry is `2` or `3`. -/
+/-- A Coxeter matrix is *simply laced*
+if every off-diagonal entry is `2` or `3`. -/
 def IsSimplyLaced (M : CoxeterMatrix (Fin n)) : Prop :=
   ∀ i j, i ≠ j → M i j = 2 ∨ M i j = 3
 
-/-- The Gram matrix of the Euler form of the quiver obtained by orienting each edge of `M`'s
+/-- The Gram matrix of the
+Euler form of the quiver
+obtained by orienting each edge of `M`'s
 diagram from the smaller to the larger index. -/
-def eulerMatrix (M : CoxeterMatrix (Fin n)) : Matrix (Fin n) (Fin n) ℤ :=
+def eulerMatrix (M : CoxeterMatrix (Fin n)) :
+  Matrix (Fin n) (Fin n) ℤ :=
   Matrix.of fun i j ↦ if i = j then 1 else if i < j ∧ M i j = 3 then -1 else 0
 
 theorem det_eulerMatrix (M : CoxeterMatrix (Fin n)) : (eulerMatrix M).det = 1 := by
@@ -83,10 +102,22 @@ theorem det_eulerMatrix (M : CoxeterMatrix (Fin n)) : (eulerMatrix M).det = 1 :=
     simp only [id] at hji
     simp [eulerMatrix, (ne_of_lt hji).symm, not_lt_of_gt hji]
 
-/-- The Euler lattice of a Coxeter matrix: `ℤⁿ` with the Euler form and the Coxeter
-transformation. -/
+/-- The Euler lattice of a Coxeter matrix:
+`ℤⁿ` with the Euler form and the Coxeter transformation. -/
 noncomputable def eulerLattice (M : CoxeterMatrix (Fin n)) : BilinearLattice.{0} :=
   ofUnimodular (eulerMatrix M) (by rw [det_eulerMatrix]; exact isUnit_one)
+
+/-- The Euler lattice of `M` with the cone of dimension vectors `positiveCone n`, given that its
+Coxeter transformation is quasi-unipotent of index at most `2`. -/
+noncomputable def eulerLatticeWithMonoidQuasiUnipotent
+  (M : CoxeterMatrix (Fin n))
+  (hS : Module.End.IsQuasiUnipotentOfIndex
+    ((eulerLattice M).S : Module.End ℤ (eulerLattice M)) 2)
+  : BilinearLatticeWithMonoidQuasiUnipotent where
+  toBilinearLattice := eulerLattice M
+  P := positiveCone n
+  isQuasiUnipotent := hS
+
 
 /-- `M` as a Coxeter group, so that its Coxeter form `bil` is available. -/
 @[reducible] noncomputable def coxeterGroupOf (M : CoxeterMatrix (Fin n)) :
@@ -170,20 +201,10 @@ theorem eulerLattice_χ_self_nonneg (M : CoxeterMatrix (Fin n)) (hM : IsSimplyLa
     exact hpsd.isNonneg.nonneg _
   exact_mod_cast this
 
-/-- The Euler lattice of a simply-laced diagram with positive semidefinite Coxeter form (a
-disjoint union of Dynkin and extended Dynkin diagrams), with the cone of dimension vectors as its
-distinguished submonoid. -/
-noncomputable def eulerLatticeWithMonoid (M : CoxeterMatrix (Fin n)) (hM : IsSimplyLaced M)
-    [IsPsdQuasiUnipotent (eulerLattice M)]
-    (hpsd : (@bil M.Group (coxeterGroupOf M)).IsPosSemidef) :
-    WithMonoidQuasiUnipotent.{0} where
-  toBilinearLattice := eulerLattice M
-  P := positiveCone n
-  isQuasiUnipotent := IsPsdQuasiUnipotent.quasiUnipotent_of_nonneg
-    (eulerLattice_χ_self_nonneg M hM hpsd)
-
-/-- **A'Campo**: for the Euler lattice of a simply-laced diagram, quasi-unipotence of `S` (of
-any index) forces the Coxeter form to be positive semidefinite. -/
+/-- **A'Campo**:
+for the Euler lattice of a simply-laced diagram
+quasi-unipotence of `S` (of any index)
+forces the Coxeter form to be positive semidefinite. -/
 proof_wanted isPosSemidef_of_isQuasiUnipotentOfIndex (M : CoxeterMatrix (Fin n))
     (hM : IsSimplyLaced M) {k : ℕ}
     (h : Module.End.IsQuasiUnipotentOfIndex

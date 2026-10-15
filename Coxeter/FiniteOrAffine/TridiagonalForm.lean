@@ -28,6 +28,7 @@ fully collapses to a clean sum of squares when `k = √2` (used by
 * `Coxeter.pathEntry_sum_range_double`
 * `Coxeter.sos_identity_lastEdge`
 * `Coxeter.lastEdgeEntry_sum_range_double`
+* `Coxeter.sos_identity_fork`
 -/
 
 @[expose] public section
@@ -223,5 +224,23 @@ theorem lastEdgeEntry_sum_range_double (n : ℕ) (k : ℝ) (y : ℕ → ℝ) :
   rw [hstep, hsquare, hrow, hcol, lastEdgeEntry_diag,
     Finset.sum_range_succ (f := fun i => (y i) ^ 2) (n := n + 1)]
   ring
+
+/-! ### A path graph with a fork at one end
+
+The tridiagonal form on the path `0 — ⋯ — n + 2`, plus one extra vertex `n + 3` joined to `n + 1`
+(type `D`'s diagram). -/
+
+/-- Sum-of-squares identity for the (doubled) quadratic form of the fork on `n + 4` vertices:
+`sos_identity` on the path `0 — ⋯ — n + 1`, then completing the square at the branch vertex
+`n + 1` with its two leaves `n + 2` and `n + 3`. -/
+theorem sos_identity_fork {R : Type*} [CommRing R] (n : ℕ) (y : ℕ → R) :
+    2 * (∑ i ∈ Finset.range (n + 3), (y i) ^ 2 - ∑ i ∈ Finset.range (n + 2), y i * y (i + 1)
+        + y (n + 3) ^ 2 - y (n + 1) * y (n + 3))
+      = y 0 ^ 2 + ∑ i ∈ Finset.range (n + 1), (y i - y (i + 1)) ^ 2
+        + (y (n + 1) - y (n + 2) - y (n + 3)) ^ 2 + (y (n + 2) - y (n + 3)) ^ 2 := by
+  have hA := sos_identity y (n + 1)
+  rw [Finset.sum_range_succ (f := fun i => (y i) ^ 2) (n := n + 2),
+    Finset.sum_range_succ (f := fun i => y i * y (i + 1)) (n := n + 1)]
+  linear_combination hA
 
 end Coxeter
